@@ -1,0 +1,62 @@
+4) 局部性原理
+这里只讨论空间局部性
+
+cpu 读取内存（速度慢）数据后，会将其放入高速缓存（速度快）当中，如果后来的计算再用到此数据，在缓存中能读到的话，就不必读内存了
+
+缓存的最小存储单位是缓存行（cache line），一般是 64 bytes，一次读的数据少了不划算啊，因此最少读 64 bytes 填满一个缓存行，因此读入某个数据时也会读取其临近的数据，这就是所谓空间局部性
+
+缓存提高CPU读和写数据效率。
+
+对效率的影响
+
+比较下面 ij 和 ji 两个方法的执行效率
+
+int rows = 1000000;
+int columns = 14;
+int[][] a = new int[rows][columns];
+​
+StopWatch sw = new StopWatch();
+sw.start("ij");
+ij(a, rows, columns);
+sw.stop();
+sw.start("ji");
+ji(a, rows, columns);
+sw.stop();
+System.out.println(sw.prettyPrint());
+ij 方法
+
+public static void ij(int[][] a, int rows, int columns) {
+    long sum = 0L;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            sum += a[i][j];
+        }
+    }
+    System.out.println(sum);
+}
+ji 方法
+
+public static void ji(int[][] a, int rows, int columns) {
+    long sum = 0L;
+    for (int j = 0; j < columns; j++) {
+        for (int i = 0; i < rows; i++) {
+            sum += a[i][j];
+        }
+    }
+    System.out.println(sum);
+}
+执行结果
+
+0
+0
+StopWatch '': running time = 96283300 ns
+---------------------------------------------
+ns         %     Task name
+---------------------------------------------
+016196200  017%  ij
+080087100  083%  ji
+可以看到 ij 的效率比 ji 快很多，为什么呢？
+
+缓存是有限的，当新数据来了后，一些旧的缓存行数据就会被覆盖
+
+如果不能充分利用缓存的数据，就会造成效率低下
